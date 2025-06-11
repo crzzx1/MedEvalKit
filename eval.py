@@ -65,9 +65,9 @@ def main():
 
     os.environ["VLLM_USE_V1"] = "0"
 
-    # # llm judge setting
-    # if args.openai_api_key == "None" and args.use_llm_judge == "True":
-    #     raise ValueError("If you want to use llm judge, please set the openai api key")
+    # llm judge setting
+    if args.openai_api_key == "None" and args.use_llm_judge == "True":
+        raise ValueError("If you want to use llm judge, please set the openai api key")
     
 
     os.environ["judge_gpt_model"] = args.judge_gpt_model

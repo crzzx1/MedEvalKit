@@ -16,6 +16,9 @@ import nltk
 import numpy as np
 
 
+# caculate the metrics of ratescore, green score, cider, bleu, rouge, meteor
+# other metrics please refer to https://github.com/rajpurkarlab/CXR-Report-Metric
+
 os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
 os.environ['PYTHONIOENCODING'] = 'utf-8'
 

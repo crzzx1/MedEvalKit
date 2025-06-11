@@ -9,13 +9,13 @@ from tqdm import tqdm
 from packaging import version
 IS_TOKENIZER_GREATER_THAN_0_14 = version.parse(tokenizers.__version__) >= version.parse('0.14')
 
-from llava.constants import  IMAGE_TOKEN_INDEX, DEFAULT_IMAGE_TOKEN
-from llava.peft import LoraConfig, get_peft_model
-from llava import conversation as conversation_lib
-from llava.model import *
-from llava.mm_utils import tokenizer_image_token,process_images
-from llava.model.language_model.llava_phi3 import LlavaPhiForCausalLM, LlavaPhiConfig
-from utils import find_all_linear_names, add_special_tokens_and_resize_model, load_weights, expand2square,com_vision_args
+from .llava.constants import  IMAGE_TOKEN_INDEX, DEFAULT_IMAGE_TOKEN
+from .llava.peft import LoraConfig, get_peft_model
+from .llava import conversation as conversation_lib
+from .llava.model import *
+from .llava.mm_utils import tokenizer_image_token,process_images
+from .llava.model.language_model.llava_phi3 import LlavaPhiForCausalLM, LlavaPhiConfig
+from .utils import find_all_linear_names, add_special_tokens_and_resize_model, load_weights, expand2square,com_vision_args
 
 class HealthGPT:
     def __init__(self,model_path,args):
