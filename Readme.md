@@ -215,11 +215,14 @@ chmod +x eval.sh  # Add execute permission
 
 ## 📜 Citation
 ```bibtex
-@misc{medevalkit2025,
-  title={MedEvalKit: Unified Medical Evaluation Framework},
-  author={DAMO Academy},
-  year={2025},
-  url={https://github.com/DAMO-NLP-SG/MedEvalKit}
+@misc{lasateam2025lingshugeneralistfoundationmodel,
+      title={Lingshu: A Generalist Foundation Model for Unified Multimodal Medical Understanding and Reasoning}, 
+      author={LASA Team and Weiwen Xu and Hou Pong Chan and Long Li and Mahani Aljunied and Ruifeng Yuan and Jianyu Wang and Chenghao Xiao and Guizhen Chen and Chaoqun Liu and Zhaodonghui Li and Yu Sun and Junao Shen and Chaojun Wang and Jie Tan and Deli Zhao and Tingyang Xu and Hao Zhang and Yu Rong},
+      year={2025},
+      eprint={2506.07044},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2506.07044}, 
 }
 ```
 
