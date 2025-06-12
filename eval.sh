@@ -32,7 +32,7 @@ USE_LLM_JUDGE="True"
 GPT_MODEL="gpt-4.1-2025-04-14"
 
 
-# 运行 Python 脚本并传递参数
+# pass hyperparameters and run python sccript
 python eval.py \
     --eval_datasets "$EVAL_DATASETS" \
     --datasets_path "$DATASETS_PATH" \

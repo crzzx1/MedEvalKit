@@ -33,41 +33,21 @@ We welcome contributions of new models, benchmarks, or enhanced evaluation metri
 ---
 
 ## 🧪 Supported Benchmarks
-### Multi-Modal Medical Benchmarks
-<div style="column-count: 2;">
 
-* MMMU-Medical-test
-* MMMU-Medical-val 
-* PMC_VQA
-* OmniMedVQA 
-* MedXpertQA-MM 
-* IU_XRAY 
-* CheXpert_Plus 
-* MIMIC_CXR 
-* VQA_RAD 
-* SLAKE 
-* PATH_VQA 
-* MedFrameQA
-
-</div>
-
-### Text-Only Benchmarks
-<div style="column-count: 2;">
-
-* MedQA_USMLE
-* MedMCQA
-* PubMedQA
-* Medbullets_op4
-* Medbullets_op5
-* MedXpertQA-Text
-* SuperGPQA
-* HealthBench
-* CMB
-* CMExam
-* CMMLU
-* MedQA_MCMLE
-
-</div>
+| Multimodal Medical Benchmarks | Text-Only Medical Benchmarks |
+|-----------------------|----------------------|
+| MMMU-Medical-test     | MedQA-USMLE          |
+| MMMU-Medical-val      | MedMCQA              |
+| PMC_VQA               | PubMedQA             |
+| OmniMedVQA            | Medbullets-op4       |
+| IU XRAY               | Medbullets-op5       |
+| MedXpertQA-Multimodal | MedXpertQA-Text      |
+| CheXpert Plus         | SuperGPQA            |
+| MIMIC-CXR             | HealthBench          |
+| VQA-RAD               | CMB                  |
+| SLAKE                 | CMExam               |
+| PATH-VQA              | CMMLU                |
+| MedFrameQA            | MedQA-MCMLE          |
 
 ---
 
