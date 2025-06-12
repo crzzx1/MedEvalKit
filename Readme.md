@@ -158,18 +158,24 @@ MedFrameQA: SuhaoYu1020/MedFrameQA
 ```bash
 #!/bin/bash
 export HF_ENDPOINT=https://hf-mirror.com
-
-# Required Settings
-EVAL_DATASETS="MMMU-Medical-test,MMMU-Medical-val,PMC_VQA"
-DATASETS_PATH="hf"
-OUTPUT_PATH="test"
+# MMMU-Medical-test,MMMU-Medical-val,PMC_VQA,MedQA_USMLE,MedMCQA,PubMedQA,OmniMedVQA,Medbullets_op4,Medbullets_op5,MedXpertQA-Text,MedXpertQA-MM,SuperGPQA,HealthBench,IU_XRAY,CheXpert_Plus,MIMIC_CXR,CMB,CMExam,CMMLU,MedQA_MCMLE,VQA_RAD,SLAKE,PATH_VQA,MedFrameQA
+EVAL_DATASETS="Medbullets_op4" 
+DATASETS_PATH="hf" # Set it to hf if you want to use the dataset on hf directly, otherwise set it to your local path
+OUTPUT_PATH="eval_results/{}"
+# TestModel,Qwen2-VL,Qwen2.5-VL,BiMediX2,LLava_Med,Huatuo,InternVL,Llama-3.2,LLava,Janus,HealthGPT,BiomedGPT,Vllm_Text,MedGemma,Med_Flamingo,MedDr
 MODEL_NAME="Qwen2.5-VL"
-MODEL_PATH="/path/to/Qwen2.5-VL-7B-Instruct"
+MODEL_PATH="Qwen2.5-VL-7B-Instruct"
 
-# Hardware Config
-CUDA_VISIBLE_DEVICES="0,1"
-TENSOR_PARALLEL_SIZE="2"
-USE_VLLM="True"
+#vllm setting
+CUDA_VISIBLE_DEVICES="0"
+TENSOR_PARALLEL_SIZE="1"
+USE_VLLM="False"
+
+#Eval setting
+SEED=42
+REASONING="False"
+TEST_TIMES=1
+
 
 # Eval LLM setting
 MAX_NEW_TOKENS=8192
@@ -180,10 +186,11 @@ REPETITION_PENALTY=1
 
 # LLM judge setting
 USE_LLM_JUDGE="True"
-# gpt-4o,gpt-4o-mini,gpt-4.1
-GPT_MODEL="gpt-4.1"
+# gpt api model name
+GPT_MODEL="gpt-4.1-2025-04-14"
 
 
+# 运行 Python 脚本并传递参数
 python eval.py \
     --eval_datasets "$EVAL_DATASETS" \
     --datasets_path "$DATASETS_PATH" \
