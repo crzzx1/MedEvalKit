@@ -209,7 +209,7 @@ async def deal_tasks(tasks, max_concurrent_tasks=500):
 class openai_llm:
     def __init__(self,model = None):
         if model is None:
-            model = os.environ.get("GPT_MODEL","gpt-4.1-2025-04-14")
+            model = os.environ.get("judge_gpt_model","gpt-4.1-2025-04-14")
 
         self.model = model
 
