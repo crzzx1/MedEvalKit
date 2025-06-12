@@ -28,8 +28,8 @@ REPETITION_PENALTY=1
 
 # LLM judge setting
 USE_LLM_JUDGE="True"
-# gpt-4o,gpt-4o-mini,gpt-4.1
-GPT_MODEL="gpt-4.1"
+# gpt api model name
+GPT_MODEL="gpt-4.1-2025-04-14"
 
 
 # 运行 Python 脚本并传递参数
