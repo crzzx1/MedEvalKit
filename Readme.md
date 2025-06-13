@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://arxiv.org/pdf/2506.07044" target="_blank">📖 arXiv Paper</a> •
-  <a href="https://github.com/alibaba-damo-academy" target="_blank">🏢 DAMO Academy</a> •
+  <a href="https://huggingface.co/collections/lingshu-medical-mllm/lingshu-mllms-6847974ca5b5df750f017dad" target="_blank">🤗 Lingshu Models</a> •
   <a href="https://alibaba-damo-academy.github.io/lingshu/" target="_blank">🌐 Lingshu Project Page</a>
 </p>
 
