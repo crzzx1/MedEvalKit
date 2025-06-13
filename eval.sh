@@ -30,6 +30,7 @@ REPETITION_PENALTY=1
 USE_LLM_JUDGE="True"
 # gpt api model name
 GPT_MODEL="gpt-4.1-2025-04-14"
+OPENAI_API_KEY=""
 
 
 # pass hyperparameters and run python sccript
@@ -51,4 +52,5 @@ python eval.py \
     --reasoning "$REASONING" \
     --use_llm_judge "$USE_LLM_JUDGE" \
     --judge_gpt_model "$GPT_MODEL" \
+    --openai_api_key "$OPENAI_API_KEY" \
     --test_times "$TEST_TIMES" 

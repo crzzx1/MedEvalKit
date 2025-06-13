@@ -141,7 +141,7 @@ MedFrameQA: SuhaoYu1020/MedFrameQA
 export HF_ENDPOINT=https://hf-mirror.com
 # MMMU-Medical-test,MMMU-Medical-val,PMC_VQA,MedQA_USMLE,MedMCQA,PubMedQA,OmniMedVQA,Medbullets_op4,Medbullets_op5,MedXpertQA-Text,MedXpertQA-MM,SuperGPQA,HealthBench,IU_XRAY,CheXpert_Plus,MIMIC_CXR,CMB,CMExam,CMMLU,MedQA_MCMLE,VQA_RAD,SLAKE,PATH_VQA,MedFrameQA
 EVAL_DATASETS="Medbullets_op4" 
-DATASETS_PATH="hf" # Set it to hf if you want to use the dataset on hf directly, otherwise set it to your local path
+DATASETS_PATH="hf"
 OUTPUT_PATH="eval_results/{}"
 # TestModel,Qwen2-VL,Qwen2.5-VL,BiMediX2,LLava_Med,Huatuo,InternVL,Llama-3.2,LLava,Janus,HealthGPT,BiomedGPT,Vllm_Text,MedGemma,Med_Flamingo,MedDr
 MODEL_NAME="Qwen2.5-VL"
@@ -169,9 +169,10 @@ REPETITION_PENALTY=1
 USE_LLM_JUDGE="True"
 # gpt api model name
 GPT_MODEL="gpt-4.1-2025-04-14"
+OPENAI_API_KEY=""
 
 
-# Run the evaluation. 
+# pass hyperparameters and run python sccript
 python eval.py \
     --eval_datasets "$EVAL_DATASETS" \
     --datasets_path "$DATASETS_PATH" \
@@ -190,6 +191,7 @@ python eval.py \
     --reasoning "$REASONING" \
     --use_llm_judge "$USE_LLM_JUDGE" \
     --judge_gpt_model "$GPT_MODEL" \
+    --openai_api_key "$OPENAI_API_KEY" \
     --test_times "$TEST_TIMES" 
 ```
 

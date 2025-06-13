@@ -32,6 +32,7 @@ REPETITION_PENALTY=1
 USE_LLM_JUDGE="True"
 # gpt api model name
 GPT_MODEL="gpt-4.1-2025-04-14"
+OPENAI_API_KEY=""
 
 
 for IDX in $(seq 0 $((CHUNKS-1))); do
