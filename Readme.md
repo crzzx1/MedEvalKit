@@ -3,7 +3,7 @@
 </h3>
 
 <p align="center">
-  <a href="https://arxiv.org/pdf/2506.07044" target="_blank">📖 arXiv Paper</a> •
+  <a href="https://arxiv.org/abs/2506.07044" target="_blank">📖 arXiv Paper</a> •
   <a href="https://huggingface.co/collections/lingshu-medical-mllm/lingshu-mllms-6847974ca5b5df750f017dad" target="_blank">🤗 Lingshu Models</a> •
   <a href="https://alibaba-damo-academy.github.io/lingshu/" target="_blank">🌐 Lingshu Project Page</a>
 </p>
@@ -205,14 +205,11 @@ chmod +x eval.sh  # Add execute permission
 
 ## 📜 Citation
 ```bibtex
-@misc{lasateam2025lingshugeneralistfoundationmodel,
-      title={Lingshu: A Generalist Foundation Model for Unified Multimodal Medical Understanding and Reasoning}, 
-      author={LASA Team and Weiwen Xu and Hou Pong Chan and Long Li and Mahani Aljunied and Ruifeng Yuan and Jianyu Wang and Chenghao Xiao and Guizhen Chen and Chaoqun Liu and Zhaodonghui Li and Yu Sun and Junao Shen and Chaojun Wang and Jie Tan and Deli Zhao and Tingyang Xu and Hao Zhang and Yu Rong},
-      year={2025},
-      eprint={2506.07044},
-      archivePrefix={arXiv},
-      primaryClass={cs.CL},
-      url={https://arxiv.org/abs/2506.07044}, 
+@article{xu2025lingshu,
+  title={Lingshu: A Generalist Foundation Model for Unified Multimodal Medical Understanding and Reasoning},
+  author={Xu, Weiwen and Chan, Hou Pong and Li, Long and Aljunied, Mahani and Yuan, Ruifeng and Wang, Jianyu and Xiao, Chenghao and Chen, Guizhen and Liu, Chaoqun and Li, Zhaodonghui and others},
+  journal={arXiv preprint arXiv:2506.07044},
+  year={2025}
 }
 ```
 
