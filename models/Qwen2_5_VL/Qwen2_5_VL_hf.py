@@ -51,7 +51,7 @@ class Qwen2_5_VL:
 
     def generate_output(self,messages):
         inputs = self.process_messages(messages)
-        do_sample = False if self.temperature else True
+        do_sample = self.temperature is not None and self.temperature > 0
         generated_ids = self.llm.generate(**inputs,temperature=self.temperature,top_p=self.top_p,repetition_penalty=self.repetition_penalty,max_new_tokens=self.max_new_tokens,do_sample = do_sample)
         generated_ids_trimmed = [
             out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
