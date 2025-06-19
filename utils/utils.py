@@ -36,6 +36,7 @@ def bleu(pred,target,n):
     return sentence_bleu([tokenized_target], tokenized_pred, weights=weights)
 
 def rouge(pred,target):
+    rouge_scorer = Rouge()
     rouge_scores = rouge_scorer.get_scores(pred.lower(), target.lower())
     return rouge_scores
 
@@ -92,30 +93,12 @@ def find_most_similar_index(str_list, target_str):
 
 def judge_multi_choice(choices,answer,response,alphas = None):
     response = response.lower()
-    if "boxed" in response:
-        response = extract_boxed_content(response)
-    elif "<answer>" in response:
-        response = extract(response,"answer")
-    elif response.split("\n\n")[0] in [chr(ord('a') + i) for i in range(len(choices))]:
+    if response.split("\n\n")[0] in [chr(ord('a') + i) for i in range(len(choices))]:
         response = response.split("\n\n")[0]
     elif response.split("\n\n")[-1].split(".")[0] in [chr(ord('a') + i) for i in range(len(choices))]:
         response = response.split("\n\n")[-1].split(".")[0]
     
-    answer_patterns = [
-        "**answer**:",
-        "**answer**",
-        "*answer*:",
-        "**answer:**",
-        "answer is",
-        "answer:",
-        "答案:",
-        "final answer",
-        "final answer is"
-    ]
-    for answer_pattern in answer_patterns:
-        if answer_pattern in response:
-            response = response.split(answer_pattern)[-1]
-        
+    response = parse_response(response)
     alphas = [chr(ord('a') + i) for i in range(len(choices))]
     choices = [choice.lower() for choice in choices]
     flag = False
@@ -148,7 +131,102 @@ def judge_multi_choice(choices,answer,response,alphas = None):
     return flag
 
 
+def parse_response(response):
+    response = response.lower()
+    if "boxed" in response:
+        response = extract_boxed_content(response)
+    elif "<answer>" in response:
+        response = extract(response,"answer")
+    answer_patterns = [
+        "**answer**:",
+        "**answer**",
+        "*answer*:",
+        "**answer:**",
+        "answer is",
+        "answer:",
+        "答案:",
+        "final answer",
+        "final answer is"
+    ]
+    for answer_pattern in answer_patterns:
+        if answer_pattern in response:
+            response = response.split(answer_pattern)[-1]
     
+    return response
+
+
+def judge_close_end_vqa(answer,response):
+    answer = answer.lower()
+    response = parse_response(response)
+    response = response.replace("\n","").replace(".","")
+    if response == answer:
+        return True
+    else:
+        return False
+
+def judge_judgement(answer,response):
+    answer = answer.lower()
+    response = parse_response(response)
+    response = response.replace("\n","").replace(".","")
+    if ('yes' in response) ^ ('no' in response):
+        if answer in response:
+            return True
+    return False
+
+
+def judge_open_end_vqa(answer,response):
+    answer = answer.lower()
+    response = parse_response(response)
+    bleu1 = bleu(response,answer,1)
+    bleu2 = bleu(response,answer,2)
+    bleu3 = bleu(response,answer,3)
+    bleu4 = bleu(response,answer,4)
+
+    em = response == answer
+    rouge_scores = rouge(response,answer)
+    rouge_1 = rouge_scores[0]["rouge-1"]["f"]
+    rouge_2 = rouge_scores[0]["rouge-2"]["f"]
+    rouge_l = rouge_scores[0]["rouge-l"]["f"]
+
+    precision,recall,f1 = calculate_f1(response,answer)
+
+
+    return {
+        "em" : em,
+        "bleu1" : bleu1,
+        "bleu2" : bleu2,
+        "bleu3" : bleu3,
+        "bleu4" : bleu4,
+        "rouge1" : rouge_1,
+        "rouge2" : rouge_2,
+        "rougel" :  rouge_l,
+        "precision": precision,
+        "recall": recall,
+        "f1" :f1         
+    }
+
+
+def calculate_f1(prediction, ground_truth):
+    prediction_tokens = set(prediction.lower().split())
+    ground_truth_tokens = set(ground_truth.lower().split())
+    
+    common = prediction_tokens & ground_truth_tokens
+    
+    if len(prediction_tokens) == 0 or len(ground_truth_tokens) == 0:
+        return 0
+    
+    precision = len(common) / len(prediction_tokens)
+    recall = len(common) / len(ground_truth_tokens)
+    
+    if precision + recall == 0:
+        return 0,0,0
+    f1 = 2 * (precision * recall) / (precision + recall)
+    
+    return f1,precision,recall
+
+
+
+
 
 def get_content_between_a_b(start_tag, end_tag, text):
     extracted_text = ""

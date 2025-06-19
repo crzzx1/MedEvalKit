@@ -70,7 +70,7 @@ def eval_MMMU_test(model,dataset_path,output_path,subset):
         out_samples,out_response = run_model(samples,model)
         save_json(results_path,out_samples)
         save_json(response_path,out_response)
-        return "please upload in https://eval.ai/web/challenges/challenge-page/2179/submission to get the results"
+        return "please upload in https://eval.ai/web/challenges/challenge-page/2179/leaderboard to get the results"
 
     elif num_chunks > 1:
         results_path = os.path.join(output_path,f"results_{chunk_idx}.json")
@@ -93,14 +93,9 @@ def eval_MMMU_test(model,dataset_path,output_path,subset):
             with open(os.path.join(output_path,"results.json"),"w") as f:
                 json.dump(total_results,f)
                 
-            return "please upload in https://eval.ai/web/challenges/challenge-page/2179/submission to get the results"
+            return "please upload in https://eval.ai/web/challenges/challenge-page/2179/leaderboard to get the results"
         else:
-            return "please upload in https://eval.ai/web/challenges/challenge-page/2179/submission to get the results"
+            return "please upload in https://eval.ai/web/challenges/challenge-page/2179/leaderboard to get the results"
     else:
         raise ValueError("num_chunks must be greater than 0")
 
-
-
-
-if __name__ == '__main__':
-    eval_MMMU(None,"/mnt/workspace/sea_llm/longli/MedLLMBenchmarks/benchmarks/MMMU","/mnt/workspace/sea_llm/longli/MedLLMBenchmarks/utils/MMMU/test")

@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 
 from mathruler.grader import extract_boxed_content
-from ..utils import save_json,extract,judge_multi_choice,judger,get_compare_messages
+from ..utils import save_json,extract,judger,get_compare_messages,judge_open_end_vqa,judge_judgement,judge_close_end_vqa
 from ..base_dataset import BaseDataset
 
 from ..question_formats import get_close_ended_prompt,get_open_ended_prompt
@@ -67,80 +67,105 @@ class SLAKE(BaseDataset):
     def cal_metrics(self,out_samples):
         messages_list = []
 
-        total = {"close" : 0, "open":0,"en":0, "zh":0}
-        right = {"close" : 0, "open":0,"en":0, "zh":0}
-
-        open_id = []
-
         langs = []
         answer_types = []
-        for out_sample in tqdm(out_samples):
+
+        metrics = {
+            "total metrics" : {
+                "total":0,
+                "right":0
+            },
+            "open" : {
+                "total" : 0,
+                "right" : 0,
+                "bleu1" : 0,
+                "bleu2" : 0,
+                "bleu3" : 0,
+                "bleu4" : 0,
+                "rouge1" : 0,
+                "rouge2" : 0,
+                "rougel" : 0,
+                "precision" : 0,
+                "recall" : 0,
+                "f1" : 0,
+                "em" : 0,
+            },
+            "close" : {
+                "total" : 0,
+                "right" : 0
+            }
+        }
+        for i,out_sample in tqdm(enumerate(out_samples)):
             response = out_sample["response"]
             if extract_boxed_content(response)!= "None":
                 response = extract_boxed_content(response)
+            elif "<answer>" in response:
+                response = extract(response,"answer")
 
             answer = out_sample["answer"]
             question = out_sample["question"]
             lang = out_sample["lang"]
             answer_type = out_sample["answer_type"]
-            messages = get_compare_messages(question,response,answer,lang,answer_type)
-            messages_list.append(messages)
-            langs.append(lang)
-            answer_types.append(answer_type)
 
-        
-        llm = judger
-        results = llm.generate_outputs(messages_list)
-        i = 0
-        for result,lang,answer_type in zip(results,langs,answer_types):
-            result = extract(result,"judge")
-            result = True if result == "0" else False
-            out_samples[i]["correct"] = result
-            i += 1
+            if os.environ.get("use_llm_judge","False") == "True":
+                messages = get_compare_messages(question,response,answer,lang,answer_type)
+                messages_list.append(messages)
+                langs.append(lang)
+                answer_types.append(answer_type)
+
             if answer_type == "OPEN":
-                total["open"] += 1
-                if result:
-                    right["open"] += 1
+                c_metrics = judge_open_end_vqa(answer,response)
+                out_samples[i]["correct"] = c_metrics["em"]
+                out_samples[i]["metrics"] = c_metrics
+                metrics["total metrics"]["total"] += 1
+                metrics["open"]["total"] += 1   
+                if c_metrics["em"]:
+                    metrics["total metrics"]["right"] += 1
+                    metrics["open"]["right"] += 1      
+                for metric in c_metrics:
+                    metrics["open"][metric] += c_metrics[metric]           
             else:
-                total["close"] += 1
-                if result:
-                    right["close"] += 1
-            if lang == "en":
-                total["en"] += 1
-                if result:
-                    right["en"] += 1
-            else:
-                total["zh"] += 1
-                if result:
-                    right["zh"] += 1
+                if answer in ["yes","no"]:
+                    flag = judge_judgement(answer,response)
+                else:
+                    flag = judge_close_end_vqa(answer,response)
+                out_samples[i]["correct"] = flag
+                metrics["total metrics"]["total"] += 1
+                metrics["close"]["total"] += 1
+                if flag:
+                    metrics["total metrics"]["right"] += 1
+                    metrics["close"]["right"] += 1
 
-        metrics = {
-            "total metrics" : {
-                "right" : right["open"] + right["close"],
-                "total" : total["open"] + total["close"],
-                "acc" : (right["open"] + right["close"]) / (total["open"] + total["close"])
-            },
-            "open-ended" : {
-                "right" : right["open"],
-                "total" : total["open"],
-                "acc" : right["open"]/total["open"]
-            },
-            "close-ended" : {
-                "right" : right["close"],
-                "total" : total["close"],
-                "acc" : right["close"]/total["close"]
-            },
-            "en" : {
-                "right" : right["en"],
-                "total" : total["en"],
-                "acc" : right["en"]/total["en"]
-            },
-            "zh" : {
-                "right" : right["zh"],
-                "total" : total["zh"],
-                "acc" : right["zh"]/total["zh"]
-            }
-        }
+
+
+
+        if os.environ.get("use_llm_judge","False") == "True":
+            metrics["total metrics"]["right"] = 0
+            metrics["open"]["right"] = 0
+            metrics["close"]["right"] = 0
+            llm = judger
+            results = llm.generate_outputs(messages_list)
+            i = 0
+            for result,lang,answer_type in zip(results,langs,answer_types):
+                result = extract(result,"judge")
+                result = True if result == "0" else False
+                out_samples[i]["correct"] = result
+                i += 1
+                if result:
+                    if answer_type == "OPEN":
+                        metrics["open"]["right"] += 1
+                    else:
+                        metrics["close"]["right"] += 1
+                    metrics["total metrics"]["right"] += 1
+
+
+        metrics["total metrics"]["acc"] = metrics["total metrics"]["right"]/metrics["total metrics"]["total"]
+        metrics["open"]["acc"] = metrics["open"]["right"]/metrics["open"]["total"]
+        metrics["close"]["acc"] = metrics["close"]["right"]/metrics["close"]["total"]
+
+        for metric in metrics["open"]:
+            if metric not in ["right","total"]:
+                metrics["open"][metric] = metrics["open"][metric]/metrics["open"]["total"]
 
         return metrics,out_samples
 
