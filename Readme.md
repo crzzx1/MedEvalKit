@@ -128,8 +128,8 @@ MedFrameQA: SuhaoYu1020/MedFrameQA
 | PMCVQA           | [RadGenome](https://huggingface.co/datasets/RadGenome/PMC-VQA) |
 | OmniMedVQA       | [foreverbeliever](https://huggingface.co/datasets/foreverbeliever/OmniMedVQA) |
 | MIMIC_CXR        | [MIMIC_CXR](https://physionet.org/content/mimic-cxr/2.1.0/) |
-| IU_Xray          | [IU_Xray](https://www.kaggle.com/datasets/raddar/chest-xrays-indiana-university) |
-| CheXpert Plus    | [CheXpert Plus](https://stanfordaimi.azurewebsites.net/datasets/5158c524-d3ab-4e02-96e9-6ee9efc110a1) |
+| IU_Xray          | [IU_Xray](https://openi.nlm.nih.gov/faq?download=true) |
+| CheXpert Plus    | [CheXpert Plus](https://aimi.stanford.edu/datasets/chexpert-plus) |
 | HealthBench       | [Normal](https://openaipublic.blob.core.windows.net/simple-evals/healthbench/2025-05-07-06-14-12_oss_eval.jsonl),[Hard](https://openaipublic.blob.core.windows.net/simple-evals/healthbench/hard_2025-05-08-21-00-10.jsonl),[Consensus](https://openaipublic.blob.core.windows.net/simple-evals/healthbench/consensus_2025-05-09-20-00-46.jsonl) |
 
 ---
