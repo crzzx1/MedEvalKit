@@ -67,6 +67,7 @@ class Llava:
 
     def generate_output(self,messages):
         llm_inputs = self.process_messages(messages)
+        do_sample = False if self.temperature == 0 else True
         outputs = self.llm.generate(**llm_inputs,max_new_tokens=self.max_new_tokens, do_sample=do_sample,repetition_penalty=self.repetition_penalty,temperature=self.temperature,top_p = self.top_p)
         outputs = self.processor.decode(outputs[0])
         return outputs

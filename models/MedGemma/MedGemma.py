@@ -68,7 +68,7 @@ class MedGemma:
         llm_inputs = self.process_messages(messages)
         input_len = llm_inputs["input_ids"].shape[-1]
         with torch.inference_mode():
-            do_sample = False if self.temperature else True
+            do_sample = False if self.temperature == 0 else True
             generation = self.llm.generate(**llm_inputs,max_new_tokens=self.max_new_tokens,do_sample = do_sample, pad_token_id= self.processor.tokenizer.eos_token_id,top_k = None,top_p = None)
             generation = generation[0][input_len:]
         decoded = self.processor.decode(generation, skip_special_tokens=True)
