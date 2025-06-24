@@ -6,7 +6,7 @@ class Qwen2VL:
     def __init__(self,model_path,args):
         super().__init__()
         self.llm = Qwen2VLForConditionalGeneration.from_pretrained(
-        model_path, torch_dtype="auto", device_map="cuda",attn_implementation="flash_attention_2")
+        model_path, torch_dtype=torch.bfloat16, device_map="cuda",attn_implementation="flash_attention_2")
         self.processor = AutoProcessor.from_pretrained(model_path)
 
         self.temperature = args.temperature
