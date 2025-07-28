@@ -30,7 +30,9 @@ REPETITION_PENALTY=1
 USE_LLM_JUDGE="True"
 # gpt api model name
 GPT_MODEL="gpt-4.1-2025-04-14"
-OPENAI_API_KEY=""
+JUDGE_MODEL_TYPE="openai"  # openai or gemini or deepseek or claude
+API_KEY=""
+BASE_URL=""
 
 
 # pass hyperparameters and run python sccript
@@ -51,6 +53,8 @@ python eval.py \
     --repetition_penalty "$REPETITION_PENALTY" \
     --reasoning "$REASONING" \
     --use_llm_judge "$USE_LLM_JUDGE" \
-    --judge_gpt_model "$GPT_MODEL" \
-    --openai_api_key "$OPENAI_API_KEY" \
-    --test_times "$TEST_TIMES" 
+    --judge_model_type "$JUDGE_MODEL_TYPE" \
+    --judge_model "$GPT_MODEL" \
+    --api_key "$API_KEY" \
+    --base_url "$BASE_URL" \
+    --test_times "$TEST_TIMES" \

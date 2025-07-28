@@ -9,7 +9,8 @@ import difflib
 import asyncio
 import random
 
-
+from google import genai
+from tqdm import tqdm
 from tqdm.asyncio import tqdm_asyncio
 from nltk.translate.meteor_score import single_meteor_score
 from nltk.translate.bleu_score import sentence_bleu
@@ -287,17 +288,22 @@ async def deal_tasks(tasks, max_concurrent_tasks=500):
 class openai_llm:
     def __init__(self,model = None):
         if model is None:
-            model = os.environ.get("judge_gpt_model","gpt-4.1-2025-04-14")
+            model = os.environ.get("judge_model","gpt-4.1-2025-04-14")
+        
+        base_url = os.environ.get("base_url", "https://api.openai.com/v1")
+        base_url = None if base_url == "None" else base_url
 
         self.model = model
 
-        api_key = os.environ["openai_api_key"]
+        api_key = os.environ["api_key"]
 
         self.client = OpenAI(
-            api_key=api_key
+            api_key=api_key,
+            base_url=base_url
             )
         self.async_client = AsyncOpenAI(
-            api_key=api_key
+            api_key=api_key,
+            base_url=base_url
             )
     
     @retry(wait=wait_fixed(10), stop=stop_after_attempt(1000), before=before_retry_fn)
@@ -351,4 +357,45 @@ class openai_llm:
         results = [x[1] for x in results]
         return results
 
-judger = openai_llm()
+class Gemini:
+    def __init__(self,model = "gemini-2.0-flash") -> None:
+        self.model = model
+        self.api_key = os.environ.get("api_key")
+
+        self.client = genai.Client(api_key=self.api_key)
+    
+    @retry(wait=wait_fixed(10), stop=stop_after_attempt(3), before=before_retry_fn)
+    def response(self,messages,**kwargs):
+        response = self.client.models.generate_content(
+            model=kwargs.get("model", self.model),
+            contents=messages,
+        )
+        return response.text
+    
+    def generate_output(self,messages,**kwargs):
+        try:
+            response = self.response(messages,**kwargs)
+        except Exception as e:
+            response = None
+            print(f"get {kwargs.get('model', self.model)} response failed: {e}")
+        return response
+    
+    def generate_outputs(self,messages,**kwargs):
+        results = []
+        for message in tqdm(messages):
+            response = self.generate_output(message,**kwargs)
+            results.append(response)
+        return results
+
+
+
+def init_judger():
+    if os.environ.get("judge_model_type", "openai") in ["openai","claude","deepseek"]:
+        judger = openai_llm()
+    elif os.environ.get("judge_model_type", "openai") == "gemini":
+        judger = Gemini()
+    else:
+        raise ValueError("Unsupported judge model type. Please set 'judge_model_type' to 'openai', 'gemini', or 'claude'.")
+    return judger
+
+judger = init_judger()

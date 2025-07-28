@@ -84,3 +84,15 @@ class VILA_M3:
             generated_text = output.outputs[0].text
             res.append(generated_text)
         return res
+
+
+import json
+
+results_path = "your_save_path/OmniMedVQA/results.json"
+with open(results_path, "r") as f:
+    results = json.load(f)
+
+for result in results:
+    if "modality_type" not in result:
+        print(result)
+        import pdb; pdb.set_trace()

@@ -56,9 +56,10 @@ def main():
     parser.add_argument('--test_times', type=int, default=1)
 
     parser.add_argument('--use_llm_judge', type=str, default="False")
-    parser.add_argument('--judge_gpt_model', type=str,default = "None")
-
-    parser.add_argument('--openai_api_key', type=str,default = "None")
+    parser.add_argument('--judge_model_type', type=str, default="openai")
+    parser.add_argument('--judge_model', type=str,default = "None")
+    parser.add_argument('--api_key', type=str,default = "None")
+    parser.add_argument('--base_url', type=str, default= "None")
 
 
     args = parser.parse_args()
@@ -66,13 +67,15 @@ def main():
     os.environ["VLLM_USE_V1"] = "0"
 
     # llm judge setting
-    if args.openai_api_key == "None" and args.use_llm_judge == "True":
+    if args.api_key == "None" and args.use_llm_judge == "True":
         raise ValueError("If you want to use llm judge, please set the openai api key")
     
-
-    os.environ["judge_gpt_model"] = args.judge_gpt_model
+    
     os.environ["use_llm_judge"] = args.use_llm_judge
-    os.environ["openai_api_key"] = args.openai_api_key
+    os.environ["judge_model_type"] = args.judge_model_type
+    os.environ["judge_model"] = args.judge_model
+    os.environ["api_key"] = args.api_key
+    os.environ["base_url"] = args.base_url
 
     # eval modle setting
     os.environ["REASONING"] = args.reasoning
