@@ -54,6 +54,7 @@ def main():
 
     parser.add_argument('--num_chunks', type=str, default="1")
     parser.add_argument('--chunk_idx', type=str, default="0")
+    parser.add_argument('--eval_batch_size', type=int, default=2000, help='batch size for dataset evaluation')
 
     parser.add_argument('--max_image_num', type=int, default=1)
     parser.add_argument('--max_new_tokens', type=int, default=1024)
@@ -97,15 +98,16 @@ def main():
     os.environ["NCCL_IGNORE_DISABLED_P2P"] = "1"
     if args.cuda_visible_devices is not None:
         os.environ["CUDA_VISIBLE_DEVICES"] = args.cuda_visible_devices
+    os.environ["tensor_parallel_size"] = args.tensor_parallel_size
+    os.environ["num_chunks"] = args.num_chunks
+    os.environ["chunk_idx"] = args.chunk_idx
+    os.environ["BATCH_SIZE"] = str(args.eval_batch_size)
     if args.use_vllm == "True":
-        os.environ["tensor_parallel_size"] = args.tensor_parallel_size
         if int(args.tensor_parallel_size) > 1:
             os.environ["VLLM_WORKER_MULTIPROC_METHOD"] = "spawn"
             os.environ["TOKENIZERS_PARALLELISM"] = "false"
     else:
         torch.multiprocessing.set_start_method('spawn')
-        os.environ["num_chunks"] = args.num_chunks
-        os.environ["chunk_idx"] = args.chunk_idx
 
 
     os.makedirs(args.output_path, exist_ok=True)

@@ -4,6 +4,7 @@ import json
 
 from tqdm import tqdm
 import gc
+from PIL import Image
 
 from .utils import save_json
 
@@ -13,34 +14,63 @@ class BaseDataset:
     self.num_chunks = int(os.environ.get("num_chunks",1))
 
 
-  def run(self,samples,model,batch_size = 2000):
+  def _open_images(self, message):
+    to_close = []
+    if "image" in message and isinstance(message["image"], str):
+      img = Image.open(message["image"])
+      message["image"] = img
+      to_close.append(img)
+    if "images" in message:
+      imgs = []
+      for img in message["images"]:
+        if isinstance(img, str):
+          img_obj = Image.open(img)
+          imgs.append(img_obj)
+          to_close.append(img_obj)
+        else:
+          imgs.append(img)
+      message["images"] = imgs
+    return to_close
+
+  def run(self, samples, model, batch_size=None):
+    if batch_size is None:
+      batch_size = int(os.environ.get("BATCH_SIZE", 2000))
     out_samples = []
     with torch.no_grad():
-        messages_list = []
-        current_messages = []
-        current_samples = []
-        for sample in tqdm(samples):
-            messages = sample["messages"]
-            current_messages.append(messages)
-            current_samples.append(sample)
-            if len(current_messages) >= batch_size:
-                messages_list.append([current_messages,current_samples])
-                current_messages = []
-                current_samples = []
-        if current_messages:
-            messages_list.append([current_messages,current_samples])
-        
-        for current_messages,current_samples in tqdm(messages_list):
-            outputs = model.generate_outputs(current_messages)
+      messages_list = []
+      current_messages = []
+      current_samples = []
+      for sample in tqdm(samples):
+        messages = sample["messages"]
+        current_messages.append(messages)
+        current_samples.append(sample)
+        if len(current_messages) >= batch_size:
+          messages_list.append([current_messages, current_samples])
+          current_messages = []
+          current_samples = []
+      if current_messages:
+        messages_list.append([current_messages, current_samples])
+
+      for current_messages, current_samples in tqdm(messages_list):
+        opened = []
+        for msg in current_messages:
+          opened.extend(self._open_images(msg))
+        outputs = model.generate_outputs(current_messages)
+        try:
+          for sample, response in zip(current_samples, outputs):
+            del sample["messages"]
+            sample["response"] = response
+            out_samples.append(sample)
+        except Exception as e:
+          from pdb import set_trace;set_trace()
+          print(e)
+        finally:
+          for img in opened:
             try:
-                for sample,response in zip(current_samples,outputs):
-                    del sample["messages"]
-                    sample["response"] = response
-                    out_samples.append(sample)   
-            except Exception as e:
-                from pdb import set_trace;set_trace()
-                print(e)
-            gc.collect()
+              img.close()
+            except Exception:
+              pass
+          gc.collect()
     return out_samples
 
   def cal_matrics(self):

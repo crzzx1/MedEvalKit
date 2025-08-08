@@ -19,6 +19,7 @@ USE_VLLM="True" #True
 SEED=42
 REASONING="False"
 TEST_TIMES=1
+BATCH_SIZE=8
 
 
 # Eval LLM setting
@@ -50,6 +51,7 @@ python eval.py \
     --max-model-len 16032 \
     --max_new_tokens "$MAX_NEW_TOKENS" \
     --max_image_num "$MAX_IMAGE_NUM" \
+    --eval_batch_size "$BATCH_SIZE" \
     --temperature "$TEMPERATURE"  \
     --top_p "$TOP_P" \
     --repetition_penalty "$REPETITION_PENALTY" \

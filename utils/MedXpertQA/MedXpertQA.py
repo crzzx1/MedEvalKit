@@ -3,7 +3,6 @@ import os
 import json
 import gc
 
-from PIL import Image
 from datasets import load_dataset
 from collections import defaultdict
 from tqdm import tqdm
@@ -48,7 +47,6 @@ class MedXpertQA(BaseDataset):
         if "images" in sample:
             images = sample["images"]
             images = [os.path.join(self.dataset_path,"images",image) for image in images]
-            images = [Image.open(image) for image in images]
             messages = {"prompt":prompt,"images":images}
             del sample["images"]
         else:
