@@ -48,11 +48,29 @@ class Qwen2_5_VL:
 
         return inputs
 
-
+    # =================================================================
+    # vvv 主要修改在此方法中 vvv
+    # =================================================================
     def generate_output(self,messages):
         inputs = self.process_messages(messages)
-        do_sample = False if self.temperature == 0 else True
-        generated_ids = self.llm.generate(**inputs,temperature=self.temperature,top_p=self.top_p,repetition_penalty=self.repetition_penalty,max_new_tokens=self.max_new_tokens,do_sample = do_sample)
+        
+        # 准备一个基础的参数字典
+        gen_kwargs = {
+            "repetition_penalty": self.repetition_penalty,
+            "max_new_tokens": self.max_new_tokens,
+        }
+
+        # 只有在 temperature > 0 时，才添加采样所需的参数
+        if self.temperature > 0:
+            gen_kwargs['do_sample'] = True
+            gen_kwargs['temperature'] = self.temperature
+            gen_kwargs['top_p'] = self.top_p
+        
+        # 如果 temperature 为 0, gen_kwargs 中没有 do_sample, temperature, top_p
+        # generate 函数会默认使用 do_sample=False 的贪心搜索，从而避免警告
+
+        generated_ids = self.llm.generate(**inputs, **gen_kwargs)
+        
         generated_ids_trimmed = [
             out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
         ]
@@ -60,6 +78,9 @@ class Qwen2_5_VL:
             generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False
         )
         return output_text[0]
+    # =================================================================
+    # ^^^ 主要修改在此方法中 ^^^
+    # =================================================================
     
     def generate_outputs(self,messages_list):
         res = []
@@ -67,5 +88,3 @@ class Qwen2_5_VL:
             result = self.generate_output(messages)
             res.append(result)
         return res
-
-        

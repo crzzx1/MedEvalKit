@@ -121,29 +121,60 @@ class VQA_RAD(BaseDataset):
                     open_id.append(i)
 
 
+# -------------------- 从这里开始替换 --------------------
+
         if os.environ.get("use_llm_judge","False") == "True":
-            metrics["total metrics"]["right"] = 0
+            # 记录基于规则判断的原始分数
+            # 我们只需要重新计算开放题分数，所以先减去基于“精确匹配”的开放题分数
+            original_open_em_right = metrics["open"]["right"]
+            metrics["total metrics"]["right"] -= original_open_em_right
+            
+            # 只重置开放题的正确数
             metrics["open"]["right"] = 0
-            metrics["close"]["right"] = 0
+            
+            # 初始化并调用 LLM Judge
             llm = judger
             results = llm.generate_outputs(messages_list)
-            for i,result in zip(open_id,results):
-                result = extract(result,"judge")
-                result = True if result == "0" else False
-                out_samples[i]["correct"] = result
-                if result:
+            
+            # 根据 Judge 的结果更新开放题的分数
+            for i, result in zip(open_id, results):
+                if result is None: continue # 跳过API调用失败的样本
+                
+                result = extract(result, "judge")
+                is_correct = True if result == "0" else False
+                out_samples[i]["correct"] = is_correct
+                
+                if is_correct:
                     metrics["open"]["right"] += 1
-                    metrics["total metrics"]["right"] += 1
+            
+            # 将 Judge 评判后的开放题分数重新加回总分
+            metrics["total metrics"]["right"] += metrics["open"]["right"]
 
         
-        metrics["total metrics"]["acc"] = metrics["total metrics"]["right"]/metrics["total metrics"]["total"]
-        metrics["open"]["acc"] = metrics["open"]["right"]/metrics["open"]["total"]
-        metrics["close"]["acc"] = metrics["close"]["right"]/metrics["close"]["total"]
+        # 确保分母不为0，然后计算最终的准确率
+        if metrics["total metrics"]["total"] > 0:
+            metrics["total metrics"]["acc"] = metrics["total metrics"]["right"] / metrics["total metrics"]["total"]
+        else:
+            metrics["total metrics"]["acc"] = 0
 
+        if metrics["open"]["total"] > 0:
+            metrics["open"]["acc"] = metrics["open"]["right"] / metrics["open"]["total"]
+        else:
+            metrics["open"]["acc"] = 0
+
+        if metrics["close"]["total"] > 0:
+            metrics["close"]["acc"] = metrics["close"]["right"] / metrics["close"]["total"]
+        else:
+            metrics["close"]["acc"] = 0
+
+        # 计算开放题的其他平均指标
         for metric in metrics["open"]:
-            if metric not in ["right","total"]:
-                metrics["open"][metric] = metrics["open"][metric]/metrics["open"]["total"]
-        return metrics,out_samples
-
-
+            if metric not in ["right", "total", "acc"]:
+                if metrics["open"]["total"] > 0:
+                    metrics["open"][metric] = metrics["open"][metric] / metrics["open"]["total"]
+                else:
+                    metrics["open"][metric] = 0
+                    
+        return metrics, out_samples
+# -------------------- 替换到这里结束 --------------------
                 

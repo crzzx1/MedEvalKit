@@ -59,7 +59,7 @@ class HealthBench(BaseDataset):
 
     def construct_messages(self,sample):
         prompt = sample["prompt"]
-        messages = {"messages":prompt}
+        messages = {"prompt":prompt} # 将键名 "messages" 修改为 "prompt"
         sample["messages"] = messages
         return sample
 

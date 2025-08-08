@@ -9,10 +9,11 @@ class Qwen2_5_VL:
         super().__init__()
         self.llm = LLM(
             model=model_path,
-            tensor_parallel_size=int(os.environ.get("tensor_parallel_size", 1)),
-            enforce_eager=True,
             trust_remote_code=True,
-            limit_mm_per_prompt = {"image": args.max_image_num},
+            tensor_parallel_size=int(args.tensor_parallel_size),  # ← 强转成 int
+            max_model_len=args.max_model_len,
+            enforce_eager=True,
+            limit_mm_per_prompt={"image": args.max_image_num},
         )
         self.processor = AutoProcessor.from_pretrained(model_path)
 

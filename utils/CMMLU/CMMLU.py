@@ -25,37 +25,49 @@ class CMMLU(BaseDataset):
         self.num_chunks = int(os.environ.get("num_chunks",1))
     
     def load_data(self):
-        dataset = load_dataset(self.dataset_path)["train"]
+        # 遍历您在文件顶部定义的 medical_subject 列表
+        for subject in medical_subject:
+            print(f"正在加载 CMMLU 的子集: {subject}...")
+            # 逐个加载每个主题的数据集
+            # 注意：我们将主题名(subject)作为第二个参数传给 load_dataset
+            # 同时，CMMLU 的评估通常在 "test" split 上进行
+            try:
+                dataset = load_dataset(self.dataset_path, name=subject, split="test", trust_remote_code=True)
+            except Exception as e:
+                print(f"加载子集 {subject} 失败: {e}。跳过此子集。")
+                continue
 
-        for idx,sample in tqdm(enumerate(dataset)):
-            if idx % self.num_chunks == self.chunk_idx:
-                if sample["task"] in medical_subject:
+            for idx, sample in tqdm(enumerate(dataset), desc=f"处理 {subject}"):
+                if idx % self.num_chunks == self.chunk_idx:
+                    # 这里的 if sample["task"] in medical_subject 检查其实可以省略了
+                    # 因为我们已经是按主题加载的，但保留也无妨
                     sample = self.construct_messages(sample)
                     self.samples.append(sample)
-        print(len(self.samples))
+
+        print(f"成功加载了 {len(self.samples)} 条来自 CMMLU 医学主题的样本。")
         return self.samples
 
     def construct_messages(self,sample):
-        answer = sample["answer"]
-        
+        # 确保这一行以及方法内的所有行都有正确的缩进（通常是4个空格）
+        answer = sample["Answer"]
 
         OptionA = sample["A"]
         OptionB = sample["B"]
         OptionC = sample["C"]
         OptionD = sample["D"]
-        question = sample["question"]
+        question = sample["Question"]
+
         choices = [OptionA,OptionB,OptionC,OptionD]
         choices = [f"{chr(65+i)}.{choices[i]}" for i in range(len(choices))]
-        
+
         is_reasoning = True if os.environ.get("REASONING","False") == "True" else False
         prompt = get_multiple_choice_prompt(question,choices,is_reasoning,lang = "zh")
 
         messages = {"prompt":prompt}
         sample["prompt"] = prompt
         sample["messages"] = messages
-        sample["answer"] = answer
+        sample["answer"] = answer 
         sample["choices"] = choices
-        # import pdb;pdb.set_trace()
         return sample
 
 

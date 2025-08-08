@@ -1,1 +1,27 @@
-*pyc
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Envs & logs
+.venv/
+.env
+*.log
+
+# Outputs / results
+reports/
+runs/
+eval_results/
+
+# Data / weights
+data/
+datasets/
+checkpoints/
+weights/
+*.pt
+*.bin
+*.safetensors
+*.parquet
+
+# Local third-party build
+flash-attention/

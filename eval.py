@@ -2,7 +2,7 @@ import os
 import torch
 import random
 import numpy as np
-from tqdm import tqdm  
+from tqdm import tqdm
 import json
 from argparse import ArgumentParser
 from LLMs import init_llm
@@ -29,9 +29,9 @@ def parse_eval_datasets(datasets_str):
 def main():
     parser = ArgumentParser()
     parser.add_argument('--eval_datasets', type=parse_eval_datasets, default=['MMMU'],
-                    help='name of eval dataset')
+                        help='name of eval dataset')
     parser.add_argument('--datasets_path', type=str, default="benchmarks",
-                    help='path of eval dataset')
+                        help='path of eval dataset')
     parser.add_argument('--output_path', type=str, default='eval_results/Qwen2-VL-7B-Instruct',
                         help='name of saved json')
     parser.add_argument('--model_name', type=str, default='Qwen2-VL-7B-Instruct',
@@ -42,6 +42,14 @@ def main():
     parser.add_argument('--cuda_visible_devices', type=str, default=None)
     parser.add_argument('--tensor_parallel_size', type=str, default="1")
     parser.add_argument('--use_vllm', type=str, default="True")
+    
+    # =====================================================================================
+    # vLLM-specific argument to control memory usage. Added to fix crash.
+    # 在这里添加了新参数的定义
+    parser.add_argument('--max-model-len', type=int, default=None, help='[VLLM] Max model length to save GPU memory.')
+    
+    
+    
     parser.add_argument('--reasoning', type=str, default="False")
 
     parser.add_argument('--num_chunks', type=str, default="1")

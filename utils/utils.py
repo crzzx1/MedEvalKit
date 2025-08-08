@@ -9,7 +9,7 @@ import difflib
 import asyncio
 import random
 
-from google import genai
+import google.generativeai as genai
 from tqdm import tqdm
 from tqdm.asyncio import tqdm_asyncio
 from nltk.translate.meteor_score import single_meteor_score
@@ -268,7 +268,7 @@ def before_retry_fn(retry_state):
     if retry_state.attempt_number > 1:
         print(f"Retrying API call. Attempt #{retry_state.attempt_number}, f{retry_state}")
 
-async def deal_tasks(tasks, max_concurrent_tasks=500):
+async def deal_tasks(tasks, max_concurrent_tasks=50):
     semaphore = asyncio.Semaphore(max_concurrent_tasks)
     results = []
 
@@ -357,35 +357,62 @@ class openai_llm:
         results = [x[1] for x in results]
         return results
 
+# --- 从这里开始复制 ---
+
 class Gemini:
-    def __init__(self,model = "gemini-2.0-flash") -> None:
-        self.model = model
+    def __init__(self, model=None):
+        if model is None:
+            # 从环境变量获取模型名称，如果没有则使用默认值
+            model = os.environ.get("judge_model", "gemini-2.5-flash")
+        
+        self.model_name = model
         self.api_key = os.environ.get("api_key")
 
-        self.client = genai.Client(api_key=self.api_key)
-    
-    @retry(wait=wait_fixed(10), stop=stop_after_attempt(3), before=before_retry_fn)
-    def response(self,messages,**kwargs):
-        response = self.client.models.generate_content(
-            model=kwargs.get("model", self.model),
-            contents=messages,
-        )
+        if not self.api_key:
+            raise ValueError("API key for Gemini is not set in environment variables.")
+
+        # 使用新版 SDK 的标准方式进行配置和初始化
+        genai.configure(api_key=self.api_key)
+        self.model = genai.GenerativeModel(self.model_name)
+        
+        print(f"Gemini judger initialized with model: {self.model_name}")
+
+    @retry(wait=wait_fixed(10), stop=stop_after_attempt(5), before=before_retry_fn)
+    async def response_async(self, messages, **kwargs):
+        """异步调用 Gemini API"""
+        # Gemini API 的 messages 格式是 content list，与 OpenAI 不同
+        # 我们假设传入的 messages 已经是适配好的 prompt 字符串
+        prompt = messages[0]['content'] if isinstance(messages, list) else messages
+        response = await self.model.generate_content_async(prompt)
         return response.text
-    
-    def generate_output(self,messages,**kwargs):
+
+    async def generate_output_async(self, idx, messages, **kwargs):
+        """带错误处理的异步生成包装器"""
         try:
-            response = self.response(messages,**kwargs)
+            response = await self.response_async(messages, **kwargs)
         except Exception as e:
             response = None
-            print(f"get {kwargs.get('model', self.model)} response failed: {e}")
-        return response
-    
-    def generate_outputs(self,messages,**kwargs):
-        results = []
-        for message in tqdm(messages):
-            response = self.generate_output(message,**kwargs)
-            results.append(response)
-        return results
+            print(f"get {self.model_name} response failed for index {idx}: {e}")
+        return idx, response
+
+    def generate_outputs(self, messages_list, **kwargs):
+        """
+        使用 asyncio 并发处理多个请求
+        """
+        # 创建异步任务列表
+        tasks = [self.generate_output_async(i, messages_list[i], **kwargs) for i in range(len(messages_list))]
+        
+        # 运行并收集结果
+        results = asyncio.run(deal_tasks(tasks))
+        
+        # 按原始顺序排序
+        results = sorted(results, key=lambda x: x[0])
+        
+        # 仅返回响应内容
+        final_results = [x[1] for x in results]
+        return final_results
+
+# --- 到这里结束复制 ---
 
 
 
